@@ -1,0 +1,40 @@
+# Byte-compiled / optimized
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Packaging / build artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# Editable-install / setuptools metadata
+src/*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Test / coverage caches
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.cache/
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# Generated dieharder streams
+*.bin
+stream.txt
+
+# OS / editor cruft
+.DS_Store
+*.swp
+.idea/
+.vscode/

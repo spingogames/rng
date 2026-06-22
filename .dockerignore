@@ -1,0 +1,16 @@
+.git
+.gitignore
+**/__pycache__
+**/*.pyc
+*.egg-info
+src/*.egg-info
+.pytest_cache
+.venv
+venv
+*.bin
+*.txt
+!README.md
+!requirements*.txt
+Dockerfile
+.dockerignore
+docker-compose.yml

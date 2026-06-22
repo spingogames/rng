@@ -1,0 +1,48 @@
+# Convenience services around two build targets of the multi-stage Dockerfile:
+#   - lib:        library + unit tests
+#   - dieharder:  library + dieharder battery
+#
+#   docker compose run --rm test        # run the pytest suite (lib)
+#   docker compose run --rm example     # run the usage example (lib)
+#   docker compose run --rm dieharder   # full dieharder battery (heavy, long!)
+#   docker compose run --rm smoke       # quick single dieharder test (heavy)
+#
+# Seeds / options are configurable via environment, e.g.:
+#   SERVER=foo CLIENT=bar docker compose run --rm dieharder
+#   BITS=52 ROTATE=100 docker compose run --rm smoke
+
+x-lib: &lib
+  build:
+    context: .
+    target: lib
+  image: spingo-games-rng:lib
+
+x-dieharder: &dieharder
+  build:
+    context: .
+    target: dieharder
+  image: spingo-games-rng:dieharder
+  environment:
+    SERVER: ${SERVER:-server}
+    CLIENT: ${CLIENT:-client}
+    ROTATE: ${ROTATE:-}   # set to N to rotate the server seed every N words
+    BITS: ${BITS:-32}     # source draw width: 32 (default) or 52 (bit-packed)
+
+services:
+  test:
+    <<: *lib
+    command: ["python", "-m", "pytest", "-q"]
+
+  example:
+    <<: *lib
+    command: ["python", "examples/basic_usage.py"]
+
+  dieharder:
+    <<: *dieharder
+    command: ["./run_dieharder.sh"]
+
+  # Quick smoke test: a single dieharder test (diehard birthdays) instead of
+  # the multi-hour full battery.
+  smoke:
+    <<: *dieharder
+    command: ["./run_dieharder.sh", "-d", "0"]

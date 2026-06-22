@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spingo-games-rng"
+version = "0.1.0"
+description = "SpinGo Games RNG: HMAC-SHA256 32-bit and 52-bit uniform RNG, ready for dieharder testing"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "artem", email = "artem.sunduchkov@spingogames.com" }]
+keywords = ["rng", "hmac", "sha256", "dieharder", "provably-fair"]
+
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
