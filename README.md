@@ -1,7 +1,8 @@
 # spingo-games-rng
 
 HMAC-SHA256 uniform RNG primitives (**`uniform32_from_hash`** /
-**`uniform52_from_hash`**) for provably-fair games, with a ready-to-run
+**`uniform52_from_hash`**) for provably-fair games, plus the reference Crash
+outcome mapping (**`calculate_crash_multiplier`**) and a ready-to-run
 [dieharder](https://webhome.phy.duke.edu/~rgb/General/dieharder.php) harness.
 
 ## What it does
@@ -41,6 +42,34 @@ server_seed = generate_server_seed()   # secret: 40 hex chars
 client_seed = generate_client_seed()   # public: 20 alphanumeric chars
 commit = hash_seed(server_seed)        # SHA-256 commitment, published up front
 ```
+
+## Crash outcome mapping
+
+`calculate_crash_multiplier` is the reference mapping for the Crash game — it
+turns a single HMAC draw into the final crash multiplier:
+
+```python
+from decimal import Decimal
+from spingo_games_rng import calculate_crash_multiplier
+
+rtp = Decimal("0.97")
+max_multiplier = Decimal("1000")
+multiplier, digest, r_int = calculate_crash_multiplier(
+    rtp, max_multiplier, server_seed, client_seed, nonce,
+)
+```
+
+The result is deterministic, rounded to 2 decimals, and bounded to
+`[1, max_multiplier]`; the house edge is applied through `rtp`. The draw feeds a
+division (not an integer-range/modulo mapping), so the outcome is unbiased and
+needs no rejection sampling.
+
+In a live round the server seed is committed (its hash published) before bets,
+the client seed combines the participating players' seeds, the nonce is the
+round number, and the server seed is revealed afterwards for verification. See
+`tests/test_crash.py` for a full round (commit → derive → reveal → verify), a
+frozen audit vector, and a Monte-Carlo simulation showing the empirical RTP
+converges to the configured RTP.
 
 ## Install & test
 
@@ -122,6 +151,10 @@ python tests/dieharder_feed.py -c client --rotate-every 100 --bits 52 | dieharde
 The stream helpers live in `tests/_streams.py` (`uint32_stream`, `uint52_stream`,
 `rotating_uint32_stream`, `rotating_uint52_stream`, `repack_to_uint32`) if you
 want to drive them from Python.
+
+A recorded full-battery run (rotating seed, 32-bit) is kept as evidence in
+[tests/results/dieharder.log](tests/results/dieharder.log); its first line shows
+the run parameters.
 
 > dieharder finds *statistical* weaknesses; HMAC-SHA256 is cryptographically
 > strong, so it is expected to pass. An occasional `WEAK` in a full run is

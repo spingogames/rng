@@ -1,5 +1,6 @@
 """spingo-games-rng: HMAC-SHA256 32-bit and 52-bit uniform RNG primitives for
-provably-fair games.
+provably-fair games, plus the reference Crash outcome mapping
+(``calculate_crash_multiplier``).
 """
 from .core import (
     uniform32_from_hash,
@@ -10,6 +11,7 @@ from .core import (
     uniform52_decimal_from_hash,
 )
 from .seeds import generate_server_seed, generate_client_seed, hash_seed
+from .crash import calculate_crash_multiplier
 
 __version__ = "0.1.0"
 
@@ -23,4 +25,5 @@ __all__ = [
     "generate_server_seed",
     "generate_client_seed",
     "hash_seed",
+    "calculate_crash_multiplier",
 ]
